@@ -269,7 +269,6 @@ useHead({
 
       <!-- フッター -->
       <footer class="text-center text-gray-600 text-sm mt-8">
-        <p>PWA対応 - オフラインでも利用可能</p>
       </footer>
     </div>
   </div>
