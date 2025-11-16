@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { NetworkInfo } from '~/utils/network'
 import {
   calculateNetworkInfo,
@@ -76,13 +76,12 @@ const checkIpBelonging = () => {
   }
 }
 
-// 2進数表示の切り替え
-const toggleBinary = () => {
-  showBinary.value = !showBinary.value
+// 2進数表示の変更を監視
+watch(showBinary, () => {
   if (networkInfo.value) {
     calculateNetwork()
   }
-}
+})
 
 // ページタイトル
 useHead({
@@ -157,7 +156,6 @@ useHead({
                   v-model="showBinary"
                   type="checkbox"
                   class="mr-2"
-                  @change="toggleBinary"
                 />
                 2進数表示も表示する
               </label>
