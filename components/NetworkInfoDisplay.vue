@@ -20,9 +20,9 @@ const copyAllInfo = () => {
 </script>
 
 <template>
-  <div class="bg-gray-50 rounded-lg p-4">
+  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
     <div class="flex justify-between items-center mb-3">
-      <h3 class="text-lg font-semibold text-gray-800">ネットワーク情報</h3>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">ネットワーク情報</h3>
       <button
         @click="copyAllInfo"
         class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5"
@@ -63,28 +63,28 @@ const copyAllInfo = () => {
     </div>
     <div class="grid gap-3">
       <div class="flex justify-between">
-        <span class="text-gray-600">ネットワークアドレス:</span>
-        <span class="font-mono font-medium">{{ networkInfo.networkAddress }}</span>
+        <span class="text-gray-600 dark:text-gray-400">ネットワークアドレス:</span>
+        <span class="font-mono font-medium dark:text-gray-200">{{ networkInfo.networkAddress }}</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-gray-600">ブロードキャストアドレス:</span>
-        <span class="font-mono font-medium">{{ networkInfo.broadcastAddress }}</span>
+        <span class="text-gray-600 dark:text-gray-400">ブロードキャストアドレス:</span>
+        <span class="font-mono font-medium dark:text-gray-200">{{ networkInfo.broadcastAddress }}</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-gray-600">ホスト範囲:</span>
-        <span class="font-mono font-medium">{{ networkInfo.firstHost }} - {{ networkInfo.lastHost }}</span>
+        <span class="text-gray-600 dark:text-gray-400">ホスト範囲:</span>
+        <span class="font-mono font-medium dark:text-gray-200">{{ networkInfo.firstHost }} - {{ networkInfo.lastHost }}</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-gray-600">ホスト数:</span>
-        <span class="font-mono font-medium">{{ networkInfo.hostCount }}</span>
+        <span class="text-gray-600 dark:text-gray-400">ホスト数:</span>
+        <span class="font-mono font-medium dark:text-gray-200">{{ networkInfo.hostCount }}</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-gray-600">サブネットマスク:</span>
-        <span class="font-mono font-medium">{{ networkInfo.subnetMask }}</span>
+        <span class="text-gray-600 dark:text-gray-400">サブネットマスク:</span>
+        <span class="font-mono font-medium dark:text-gray-200">{{ networkInfo.subnetMask }}</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-gray-600">ワイルドカードマスク:</span>
-        <span class="font-mono font-medium">{{ networkInfo.wildcardMask }}</span>
+        <span class="text-gray-600 dark:text-gray-400">ワイルドカードマスク:</span>
+        <span class="font-mono font-medium dark:text-gray-200">{{ networkInfo.wildcardMask }}</span>
       </div>
     </div>
   </div>

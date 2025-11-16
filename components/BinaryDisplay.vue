@@ -16,9 +16,9 @@ const copyBinaryInfo = () => {
 </script>
 
 <template>
-  <div class="bg-gray-50 rounded-lg p-4">
+  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
     <div class="flex justify-between items-center mb-3">
-      <h3 class="text-lg font-semibold text-gray-800">2進数表示</h3>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">2進数表示</h3>
       <button
         @click="copyBinaryInfo"
         class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5"
@@ -59,14 +59,14 @@ const copyBinaryInfo = () => {
     </div>
     <div class="grid gap-3">
       <div>
-        <div class="text-gray-600 mb-1">IPアドレス:</div>
-        <div class="font-mono text-sm bg-white p-2 rounded border border-gray-200 break-all">
+        <div class="text-gray-600 dark:text-gray-400 mb-1">IPアドレス:</div>
+        <div class="font-mono text-sm bg-white dark:bg-gray-800 dark:text-gray-200 p-2 rounded border border-gray-200 dark:border-gray-600 break-all">
           {{ binaryRep.ip }}
         </div>
       </div>
       <div>
-        <div class="text-gray-600 mb-1">サブネットマスク:</div>
-        <div class="font-mono text-sm bg-white p-2 rounded border border-gray-200 break-all">
+        <div class="text-gray-600 dark:text-gray-400 mb-1">サブネットマスク:</div>
+        <div class="font-mono text-sm bg-white dark:bg-gray-800 dark:text-gray-200 p-2 rounded border border-gray-200 dark:border-gray-600 break-all">
           {{ binaryRep.mask }}
         </div>
       </div>
