@@ -682,3 +682,529 @@ export function calculateVLSM(baseNetwork: string, requirements: VLSMRequirement
 
   return results
 }
+
+/**
+ * サブネットマスク変換器の型定義
+ */
+export interface SubnetMaskConversion {
+  cidr: number | null
+  dotted: string | null
+  wildcard: string | null
+  hex: string | null
+  binary: string | null
+  bits: number | null
+}
+
+/**
+ * サブネットマスクを16進数表記に変換
+ */
+export function subnetMaskToHex(subnetMask: string): string {
+  const parts = subnetMask.split('.').map(Number)
+  return parts.map(p => p.toString(16).padStart(2, '0').toUpperCase()).join('')
+}
+
+/**
+ * 16進数表記からサブネットマスクに変換
+ */
+export function hexToSubnetMask(hex: string): string {
+  // 0xプレフィックスを削除
+  hex = hex.replace(/^0x/i, '')
+
+  if (hex.length !== 8) {
+    throw new Error('16進数は8桁で入力してください（例: FFFFFF00）')
+  }
+
+  const parts = []
+  for (let i = 0; i < 8; i += 2) {
+    parts.push(parseInt(hex.substr(i, 2), 16))
+  }
+
+  return parts.join('.')
+}
+
+/**
+ * サブネットマスクからCIDRを計算
+ */
+export function subnetMaskToCIDR(subnetMask: string): number {
+  if (!isValidIP(subnetMask)) {
+    throw new Error('無効なサブネットマスクです')
+  }
+
+  const maskNum = ipToNumber(subnetMask)
+  const binary = maskNum.toString(2)
+
+  // 1のビット数をカウント
+  const ones = binary.split('1').length - 1
+
+  // 有効なサブネットマスクか検証（連続した1の後に連続した0）
+  const expectedMask = (0xFFFFFFFF << (32 - ones)) >>> 0
+  if (maskNum !== expectedMask) {
+    throw new Error('無効なサブネットマスク形式です（連続したビットである必要があります）')
+  }
+
+  return ones
+}
+
+/**
+ * あらゆる形式のサブネットマスクを相互変換
+ */
+export function convertSubnetMask(input: string): SubnetMaskConversion {
+  let cidr: number | null = null
+  let dotted: string | null = null
+  let wildcard: string | null = null
+  let hex: string | null = null
+  let binary: string | null = null
+  let bits: number | null = null
+
+  try {
+    // CIDR形式（/24 または 24）
+    if (input.match(/^\/?\d{1,2}$/)) {
+      cidr = parseInt(input.replace('/', ''), 10)
+      if (cidr < 0 || cidr > 32) {
+        throw new Error('CIDRは0から32の範囲で指定してください')
+      }
+      dotted = cidrToSubnetMask(cidr)
+    }
+    // ドット表記（255.255.255.0）
+    else if (input.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+      dotted = input
+      cidr = subnetMaskToCIDR(dotted)
+    }
+    // 16進数（FFFFFF00 または 0xFFFFFF00）
+    else if (input.match(/^(0x)?[0-9A-Fa-f]{8}$/)) {
+      hex = input.replace(/^0x/i, '').toUpperCase()
+      dotted = hexToSubnetMask(hex)
+      cidr = subnetMaskToCIDR(dotted)
+    }
+    // ビット数形式（32個の0と1）
+    else if (input.match(/^[01]{32}$/)) {
+      const maskNum = parseInt(input, 2)
+      dotted = numberToIp(maskNum)
+      cidr = subnetMaskToCIDR(dotted)
+    }
+    else {
+      throw new Error('認識できない形式です')
+    }
+
+    // すべての形式に変換
+    if (dotted && cidr !== null) {
+      wildcard = getWildcardMask(dotted)
+      hex = subnetMaskToHex(dotted)
+      binary = ipToBinary(dotted).replace(/\./g, '')
+      bits = cidr
+    }
+
+    return { cidr, dotted, wildcard, hex, binary, bits }
+  } catch (error) {
+    throw error
+  }
+}
+
+/**
+ * IPアドレス計算機の型定義
+ */
+export interface IPCalculation {
+  nextIP: string
+  previousIP: string
+  offsetResult: string | null
+  distance: number | null
+}
+
+/**
+ * 次のIPアドレスを取得
+ */
+export function getNextIP(ip: string): string {
+  if (!isValidIP(ip)) {
+    throw new Error('無効なIPアドレスです')
+  }
+  const ipNum = ipToNumber(ip)
+  if (ipNum === 0xFFFFFFFF) {
+    throw new Error('これ以上のIPアドレスは存在しません')
+  }
+  return numberToIp(ipNum + 1)
+}
+
+/**
+ * 前のIPアドレスを取得
+ */
+export function getPreviousIP(ip: string): string {
+  if (!isValidIP(ip)) {
+    throw new Error('無効なIPアドレスです')
+  }
+  const ipNum = ipToNumber(ip)
+  if (ipNum === 0) {
+    throw new Error('これ以前のIPアドレスは存在しません')
+  }
+  return numberToIp(ipNum - 1)
+}
+
+/**
+ * IPアドレスにオフセットを追加
+ */
+export function addOffsetToIP(ip: string, offset: number): string {
+  if (!isValidIP(ip)) {
+    throw new Error('無効なIPアドレスです')
+  }
+  const ipNum = ipToNumber(ip)
+  const result = ipNum + offset
+
+  if (result < 0 || result > 0xFFFFFFFF) {
+    throw new Error('オフセット計算の結果が有効な範囲を超えています')
+  }
+
+  return numberToIp(result)
+}
+
+/**
+ * 2つのIPアドレス間の距離を計算
+ */
+export function getIPDistance(ip1: string, ip2: string): number {
+  if (!isValidIP(ip1) || !isValidIP(ip2)) {
+    throw new Error('無効なIPアドレスです')
+  }
+  const num1 = ipToNumber(ip1)
+  const num2 = ipToNumber(ip2)
+  return Math.abs(num2 - num1)
+}
+
+/**
+ * ネットワーク内のN番目のホストを取得
+ */
+export function getNthHostInNetwork(cidrNotation: string, n: number): string {
+  const networkInfo = calculateNetworkInfo(cidrNotation)
+  const networkNum = ipToNumber(networkInfo.networkAddress)
+  const hostNum = networkNum + n
+
+  const broadcastNum = ipToNumber(networkInfo.broadcastAddress)
+
+  if (hostNum > broadcastNum) {
+    throw new Error('指定されたホスト番号がネットワーク範囲を超えています')
+  }
+
+  return numberToIp(hostNum)
+}
+
+/**
+ * IPアドレス計算を実行
+ */
+export function calculateIP(ip: string, offset?: number, secondIP?: string): IPCalculation {
+  if (!isValidIP(ip)) {
+    throw new Error('無効なIPアドレスです')
+  }
+
+  const nextIP = getNextIP(ip)
+  const previousIP = getPreviousIP(ip)
+  let offsetResult: string | null = null
+  let distance: number | null = null
+
+  if (offset !== undefined && offset !== null) {
+    offsetResult = addOffsetToIP(ip, offset)
+  }
+
+  if (secondIP && isValidIP(secondIP)) {
+    distance = getIPDistance(ip, secondIP)
+  }
+
+  return { nextIP, previousIP, offsetResult, distance }
+}
+
+/**
+ * ネットワーク比較の結果
+ */
+export interface NetworkComparisonResult {
+  hasOverlap: boolean
+  isIdentical: boolean
+  network1ContainsNetwork2: boolean
+  network2ContainsNetwork1: boolean
+  areAdjacent: boolean
+  canBeMerged: boolean
+  mergedNetwork: string | null
+  overlapCIDR: string | null
+}
+
+/**
+ * 2つのネットワークを比較
+ */
+export function compareNetworks(cidr1: string, cidr2: string): NetworkComparisonResult {
+  if (!isValidCIDR(cidr1) || !isValidCIDR(cidr2)) {
+    throw new Error('有効なCIDR表記を入力してください')
+  }
+
+  const info1 = calculateNetworkInfo(cidr1)
+  const info2 = calculateNetworkInfo(cidr2)
+
+  const net1Start = ipToNumber(info1.networkAddress)
+  const net1End = ipToNumber(info1.broadcastAddress)
+  const net2Start = ipToNumber(info2.networkAddress)
+  const net2End = ipToNumber(info2.broadcastAddress)
+
+  // 同一ネットワークかチェック
+  const isIdentical = net1Start === net2Start && net1End === net2End
+
+  // 重複チェック
+  const hasOverlap = !(net1End < net2Start || net2End < net1Start)
+
+  // 包含関係チェック
+  const network1ContainsNetwork2 = net1Start <= net2Start && net1End >= net2End
+  const network2ContainsNetwork1 = net2Start <= net1Start && net2End >= net1End
+
+  // 隣接チェック
+  const areAdjacent = (net1End + 1 === net2Start) || (net2End + 1 === net1Start)
+
+  // 統合可能性チェック
+  let canBeMerged = false
+  let mergedNetwork: string | null = null
+
+  if (areAdjacent && info1.cidr === info2.cidr) {
+    // 同じサイズで隣接している場合、親ネットワークに統合できるかチェック
+    const parentCidr = info1.cidr - 1
+    if (parentCidr >= 0) {
+      const parentMask = ipToNumber(cidrToSubnetMask(parentCidr))
+      const parent1 = net1Start & parentMask
+      const parent2 = net2Start & parentMask
+
+      if (parent1 === parent2) {
+        canBeMerged = true
+        mergedNetwork = `${numberToIp(parent1)}/${parentCidr}`
+      }
+    }
+  }
+
+  // 重複部分のCIDR計算
+  let overlapCIDR: string | null = null
+  if (hasOverlap && !isIdentical) {
+    const overlapStart = Math.max(net1Start, net2Start)
+    const overlapEnd = Math.min(net1End, net2End)
+
+    // 重複範囲をCIDRに変換（最適化のため、簡易版）
+    const overlapSize = overlapEnd - overlapStart + 1
+    const cidrBits = 32 - Math.floor(Math.log2(overlapSize))
+    overlapCIDR = `${numberToIp(overlapStart)}/${cidrBits}`
+  }
+
+  return {
+    hasOverlap,
+    isIdentical,
+    network1ContainsNetwork2,
+    network2ContainsNetwork1,
+    areAdjacent,
+    canBeMerged,
+    mergedNetwork,
+    overlapCIDR
+  }
+}
+
+/**
+ * IPv6アドレスのインターフェース
+ */
+export interface IPv6Info {
+  fullAddress: string
+  compressedAddress: string
+  expandedAddress: string
+  prefix: number
+  networkAddress: string
+  interfaceID: string
+  isLinkLocal: boolean
+  isUniqueLocal: boolean
+  isMulticast: boolean
+  isLoopback: boolean
+  scope: string
+}
+
+/**
+ * IPv6アドレスを展開形式に変換
+ */
+export function expandIPv6(ipv6: string): string {
+  // プレフィックスを分離
+  const parts = ipv6.split('/')
+  let addr = parts[0]
+  const prefix = parts[1]
+
+  // ::を展開
+  if (addr.includes('::')) {
+    const sides = addr.split('::')
+    const leftGroups = sides[0] ? sides[0].split(':') : []
+    const rightGroups = sides[1] ? sides[1].split(':') : []
+    const missingGroups = 8 - leftGroups.length - rightGroups.length
+
+    const middleGroups = Array(missingGroups).fill('0000')
+    const allGroups = [...leftGroups, ...middleGroups, ...rightGroups]
+    addr = allGroups.map(g => g.padStart(4, '0')).join(':')
+  } else {
+    // 各グループを4桁に展開
+    addr = addr.split(':').map(g => g.padStart(4, '0')).join(':')
+  }
+
+  return prefix ? `${addr}/${prefix}` : addr
+}
+
+/**
+ * IPv6アドレスを圧縮形式に変換
+ */
+export function compressIPv6(ipv6: string): string {
+  // プレフィックスを分離
+  const parts = ipv6.split('/')
+  let addr = parts[0]
+  const prefix = parts[1]
+
+  // 展開形式に変換
+  addr = expandIPv6(addr).split('/')[0]
+
+  // 先頭の0を削除
+  let groups = addr.split(':').map(g => g.replace(/^0+/, '') || '0')
+
+  // 最長の連続する0のグループを見つけて::に置換
+  let maxZeroStart = -1
+  let maxZeroLen = 0
+  let currentZeroStart = -1
+  let currentZeroLen = 0
+
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i] === '0') {
+      if (currentZeroStart === -1) {
+        currentZeroStart = i
+        currentZeroLen = 1
+      } else {
+        currentZeroLen++
+      }
+    } else {
+      if (currentZeroLen > maxZeroLen) {
+        maxZeroStart = currentZeroStart
+        maxZeroLen = currentZeroLen
+      }
+      currentZeroStart = -1
+      currentZeroLen = 0
+    }
+  }
+
+  if (currentZeroLen > maxZeroLen) {
+    maxZeroStart = currentZeroStart
+    maxZeroLen = currentZeroLen
+  }
+
+  // ::に置換（2つ以上の連続した0がある場合のみ）
+  if (maxZeroLen > 1) {
+    const before = groups.slice(0, maxZeroStart).join(':')
+    const after = groups.slice(maxZeroStart + maxZeroLen).join(':')
+    addr = before && after ? `${before}::${after}` :
+           before ? `${before}::` :
+           after ? `::${after}` : '::'
+  } else {
+    addr = groups.join(':')
+  }
+
+  return prefix ? `${addr}/${prefix}` : addr
+}
+
+/**
+ * IPv6アドレスの情報を計算
+ */
+export function calculateIPv6Info(ipv6: string): IPv6Info {
+  const parts = ipv6.split('/')
+  const addr = parts[0]
+  const prefix = parts[1] ? parseInt(parts[1], 10) : 128
+
+  if (prefix < 0 || prefix > 128) {
+    throw new Error('IPv6プレフィックスは0から128の範囲で指定してください')
+  }
+
+  const expanded = expandIPv6(addr).split('/')[0]
+  const compressed = compressIPv6(addr).split('/')[0]
+
+  // ネットワークアドレスを計算
+  const groups = expanded.split(':').map(g => parseInt(g, 16))
+  const prefixGroups = Math.floor(prefix / 16)
+  const prefixBits = prefix % 16
+
+  const networkGroups = groups.map((g, i) => {
+    if (i < prefixGroups) return g
+    if (i === prefixGroups) {
+      const mask = (0xFFFF << (16 - prefixBits)) & 0xFFFF
+      return g & mask
+    }
+    return 0
+  })
+
+  const networkAddress = networkGroups.map(g => g.toString(16)).join(':')
+
+  // インターフェースIDを取得
+  const interfaceGroups = groups.slice(4)
+  const interfaceID = interfaceGroups.map(g => g.toString(16).padStart(4, '0')).join(':')
+
+  // アドレスタイプの判定
+  const firstGroup = groups[0]
+  const isLinkLocal = firstGroup === 0xFE80
+  const isUniqueLocal = (firstGroup & 0xFE00) === 0xFC00
+  const isMulticast = (firstGroup & 0xFF00) === 0xFF00
+  const isLoopback = expanded === '0000:0000:0000:0000:0000:0000:0000:0001'
+
+  let scope = 'グローバル'
+  if (isLoopback) scope = 'ループバック'
+  else if (isLinkLocal) scope = 'リンクローカル'
+  else if (isUniqueLocal) scope = 'ユニークローカル'
+  else if (isMulticast) scope = 'マルチキャスト'
+
+  return {
+    fullAddress: `${expanded}/${prefix}`,
+    compressedAddress: compressed,
+    expandedAddress: expanded,
+    prefix,
+    networkAddress: compressIPv6(networkAddress),
+    interfaceID,
+    isLinkLocal,
+    isUniqueLocal,
+    isMulticast,
+    isLoopback,
+    scope
+  }
+}
+
+/**
+ * IPv4をIPv6にマッピング
+ */
+export function ipv4ToIPv6(ipv4: string): string {
+  if (!isValidIP(ipv4)) {
+    throw new Error('無効なIPv4アドレスです')
+  }
+
+  const parts = ipv4.split('.').map(Number)
+  const hex1 = ((parts[0] << 8) + parts[1]).toString(16).padStart(4, '0')
+  const hex2 = ((parts[2] << 8) + parts[3]).toString(16).padStart(4, '0')
+
+  return `::ffff:${hex1}:${hex2}`
+}
+
+/**
+ * バッチ処理の結果
+ */
+export interface BatchProcessResult {
+  input: string
+  success: boolean
+  result: any
+  error: string | null
+}
+
+/**
+ * 複数のIPアドレスを一括で判定
+ */
+export function batchCheckIPs(ips: string[], network: string): BatchProcessResult[] {
+  return ips.map(ip => {
+    try {
+      const inNetwork = isIpInNetwork(ip, network)
+      const ipType = getIPType(ip, network)
+      return {
+        input: ip,
+        success: true,
+        result: { inNetwork, ipType },
+        error: null
+      }
+    } catch (error) {
+      return {
+        input: ip,
+        success: false,
+        result: null,
+        error: error instanceof Error ? error.message : '不明なエラー'
+      }
+    }
+  })
+}

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 
 // アクティブなタブ
-const activeTab = ref<'network' | 'checker' | 'subnet' | 'range' | 'aggregate' | 'vlsm'>('network')
+const activeTab = ref<'network' | 'checker' | 'subnet' | 'range' | 'aggregate' | 'vlsm' | 'mask-converter' | 'ip-classifier' | 'ip-calculator' | 'network-comparator' | 'ipv6' | 'batch' | 'visualizer'>('network')
 
 // ダークモード
 const { isDark, toggle, init: initDarkMode } = useDarkMode()
@@ -12,7 +12,7 @@ const { init: initHistory } = useHistory()
 
 // ページタイトル
 useHead({
-  title: 'IP Toolbox - Network Calculator'
+  title: 'IP Toolbox - Advanced Network Calculator'
 })
 
 onMounted(() => {
@@ -54,7 +54,7 @@ onMounted(() => {
           <button
             @click="activeTab = 'network'"
             :class="[
-              'flex-1 min-w-[120px] py-3 px-4 text-center text-sm font-medium transition-colors',
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
               activeTab === 'network'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -65,7 +65,7 @@ onMounted(() => {
           <button
             @click="activeTab = 'checker'"
             :class="[
-              'flex-1 min-w-[120px] py-3 px-4 text-center text-sm font-medium transition-colors',
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
               activeTab === 'checker'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -76,7 +76,7 @@ onMounted(() => {
           <button
             @click="activeTab = 'subnet'"
             :class="[
-              'flex-1 min-w-[120px] py-3 px-4 text-center text-sm font-medium transition-colors',
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
               activeTab === 'subnet'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -87,7 +87,7 @@ onMounted(() => {
           <button
             @click="activeTab = 'range'"
             :class="[
-              'flex-1 min-w-[120px] py-3 px-4 text-center text-sm font-medium transition-colors',
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
               activeTab === 'range'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -98,7 +98,7 @@ onMounted(() => {
           <button
             @click="activeTab = 'aggregate'"
             :class="[
-              'flex-1 min-w-[120px] py-3 px-4 text-center text-sm font-medium transition-colors',
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
               activeTab === 'aggregate'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -109,13 +109,90 @@ onMounted(() => {
           <button
             @click="activeTab = 'vlsm'"
             :class="[
-              'flex-1 min-w-[120px] py-3 px-4 text-center text-sm font-medium transition-colors',
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
               activeTab === 'vlsm'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
             ]"
           >
             VLSM
+          </button>
+          <button
+            @click="activeTab = 'mask-converter'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'mask-converter'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            マスク変換
+          </button>
+          <button
+            @click="activeTab = 'ip-classifier'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'ip-classifier'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            IP分類
+          </button>
+          <button
+            @click="activeTab = 'ip-calculator'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'ip-calculator'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            IP計算機
+          </button>
+          <button
+            @click="activeTab = 'network-comparator'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'network-comparator'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            ネットワーク比較
+          </button>
+          <button
+            @click="activeTab = 'ipv6'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'ipv6'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            IPv6
+          </button>
+          <button
+            @click="activeTab = 'batch'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'batch'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            一括処理
+          </button>
+          <button
+            @click="activeTab = 'visualizer'"
+            :class="[
+              'flex-1 min-w-[100px] py-2 px-2 text-center text-xs font-medium transition-colors',
+              activeTab === 'visualizer'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ]"
+          >
+            可視化
           </button>
         </div>
 
@@ -136,6 +213,41 @@ onMounted(() => {
 
         <!-- VLSMタブ -->
         <VLSMCalculator v-show="activeTab === 'vlsm'" />
+
+        <!-- サブネットマスク変換器タブ -->
+        <div v-show="activeTab === 'mask-converter'" class="p-6">
+          <SubnetMaskConverter />
+        </div>
+
+        <!-- IPアドレスタイプ分類タブ -->
+        <div v-show="activeTab === 'ip-classifier'" class="p-6">
+          <IPTypeClassifier />
+        </div>
+
+        <!-- IPアドレス計算機タブ -->
+        <div v-show="activeTab === 'ip-calculator'" class="p-6">
+          <IPCalculator />
+        </div>
+
+        <!-- ネットワーク比較タブ -->
+        <div v-show="activeTab === 'network-comparator'" class="p-6">
+          <NetworkComparator />
+        </div>
+
+        <!-- IPv6タブ -->
+        <div v-show="activeTab === 'ipv6'" class="p-6">
+          <IPv6Calculator />
+        </div>
+
+        <!-- 一括処理タブ -->
+        <div v-show="activeTab === 'batch'" class="p-6">
+          <BatchProcessor />
+        </div>
+
+        <!-- 可視化タブ -->
+        <div v-show="activeTab === 'visualizer'" class="p-6">
+          <NetworkVisualizer />
+        </div>
       </div>
     </div>
   </div>
