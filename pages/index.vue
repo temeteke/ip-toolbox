@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { NetworkInfo } from '~/utils/network'
 import {
   calculateNetworkInfo,
@@ -18,7 +18,6 @@ const activeTab = ref<'network' | 'checker'>('network')
 const cidrInput = ref('192.168.0.0/24')
 const networkInfo = ref<NetworkInfo | null>(null)
 const networkError = ref('')
-const showBinary = ref(false)
 const binaryRep = ref<{ ip: string; mask: string } | null>(null)
 
 // IP判定用
@@ -42,10 +41,7 @@ const calculateNetwork = () => {
     }
 
     networkInfo.value = calculateNetworkInfo(cidrInput.value)
-
-    if (showBinary.value) {
-      binaryRep.value = getBinaryRepresentation(cidrInput.value)
-    }
+    binaryRep.value = getBinaryRepresentation(cidrInput.value)
   } catch (error) {
     networkError.value = error instanceof Error ? error.message : '計算エラーが発生しました'
   }
@@ -75,13 +71,6 @@ const checkIpBelonging = () => {
     checkError.value = error instanceof Error ? error.message : '判定エラーが発生しました'
   }
 }
-
-// 2進数表示の変更を監視
-watch(showBinary, () => {
-  if (networkInfo.value) {
-    calculateNetwork()
-  }
-})
 
 // ページタイトル
 useHead({
@@ -150,16 +139,6 @@ useHead({
                 計算
               </button>
             </div>
-            <div class="mt-2">
-              <label class="flex items-center text-sm text-gray-600">
-                <input
-                  v-model="showBinary"
-                  type="checkbox"
-                  class="mr-2"
-                />
-                2進数表示も表示する
-              </label>
-            </div>
           </div>
 
           <!-- エラーメッセージ -->
@@ -200,7 +179,7 @@ useHead({
             </div>
 
             <!-- 2進数表示 -->
-            <div v-if="showBinary && binaryRep" class="bg-gray-50 rounded-lg p-4">
+            <div v-if="binaryRep" class="bg-gray-50 rounded-lg p-4">
               <h3 class="text-lg font-semibold text-gray-800 mb-3">2進数表示</h3>
               <div class="grid gap-3">
                 <div>
