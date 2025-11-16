@@ -17,10 +17,11 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'A PWA network calculator for IP address analysis and CIDR calculations' }
+        { name: 'description', content: 'A PWA network calculator for IP address analysis and CIDR calculations' },
+        { name: 'theme-color', content: '#3b82f6' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/ip-toolbox/favicon.ico' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/ip-toolbox/icon.svg' }
       ]
     }
   },
@@ -42,13 +43,17 @@ export default defineNuxtConfig({
         {
           src: '/ip-toolbox/icon.svg',
           sizes: 'any',
-          type: 'image/svg+xml'
+          type: 'image/svg+xml',
+          purpose: 'any maskable'
         }
       ]
     },
     workbox: {
       navigateFallback: '/ip-toolbox/',
       globPatterns: ['**/*.{js,css,html,png,svg,ico}']
+    },
+    client: {
+      installPrompt: true
     },
     devOptions: {
       enabled: true,
