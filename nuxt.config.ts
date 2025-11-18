@@ -21,7 +21,8 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#3b82f6' }
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/ip-toolbox/icon.svg' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/ip-toolbox/icon.svg' },
+        { rel: 'manifest', href: '/ip-toolbox/manifest.webmanifest' }
       ]
     }
   },
@@ -32,6 +33,7 @@ export default defineNuxtConfig({
   // PWA設定
   pwa: {
     registerType: 'autoUpdate',
+    registerWebManifestInRouteRules: true,
     manifest: {
       name: 'IP Toolbox',
       short_name: 'IP Toolbox',
