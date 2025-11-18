@@ -166,13 +166,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { compareNetworks, type NetworkComparisonResult } from '~/utils/network'
 
 const network1 = ref('')
 const network2 = ref('')
 const result = ref<NetworkComparisonResult | null>(null)
 const error = ref('')
+
+const { getQueryParam, updateQueryParams } = useUrlState()
 
 const handleCompare = () => {
   if (!network1.value.trim() || !network2.value.trim()) {
@@ -197,4 +199,24 @@ const copyToClipboard = (text: string) => {
     console.error('コピーに失敗しました:', err)
   })
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlNetwork1 = getQueryParam('network1')
+  const urlNetwork2 = getQueryParam('network2')
+
+  if (urlNetwork1) network1.value = urlNetwork1
+  if (urlNetwork2) network2.value = urlNetwork2
+
+  if (urlNetwork1 && urlNetwork2) {
+    handleCompare()
+  }
+})
+
+watch([network1, network2], ([newNet1, newNet2]) => {
+  updateQueryParams({
+    network1: newNet1 || null,
+    network2: newNet2 || null
+  })
+})
 </script>
