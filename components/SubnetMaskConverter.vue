@@ -123,12 +123,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { convertSubnetMask, type SubnetMaskConversion } from '~/utils/network'
 
 const input = ref('')
 const result = ref<SubnetMaskConversion | null>(null)
 const error = ref('')
+
+const { getQueryParam, updateQueryParam } = useUrlState()
 
 const handleConvert = () => {
   if (!input.value.trim()) {
@@ -160,4 +162,17 @@ const copyToClipboard = (text: string) => {
     console.error('コピーに失敗しました:', err)
   })
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlMask = getQueryParam('mask')
+  if (urlMask) {
+    input.value = urlMask
+    handleConvert()
+  }
+})
+
+watch(input, (newValue) => {
+  updateQueryParam('mask', newValue || null)
+})
 </script>

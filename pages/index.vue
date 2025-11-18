@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 // カテゴリーとタブの型定義
 type Category = 'basic' | 'convert' | 'analyze' | 'advanced'
@@ -50,6 +50,9 @@ const subTabs = {
 // 現在のアクティブなサブタブ
 const currentSubTab = computed(() => activeTabs.value[activeCategory.value])
 
+// URL状態管理
+const { getQueryParam, updateQueryParams } = useUrlState()
+
 // カテゴリー変更時の処理
 const setCategory = (category: Category) => {
   activeCategory.value = category
@@ -71,9 +74,35 @@ useHead({
   title: 'IP Toolbox - Advanced Network Calculator'
 })
 
+// URLパラメータからの状態復元
+const restoreStateFromUrl = () => {
+  const categoryParam = getQueryParam('category') as Category | null
+  if (categoryParam && ['basic', 'convert', 'analyze', 'advanced'].includes(categoryParam)) {
+    activeCategory.value = categoryParam
+  }
+
+  const tabParam = getQueryParam('tab')
+  if (tabParam) {
+    const category = activeCategory.value
+    const validTabs = subTabs[category].map(t => t.id)
+    if (validTabs.includes(tabParam)) {
+      activeTabs.value[category] = tabParam as any
+    }
+  }
+}
+
+// 状態変更時にURLを更新
+watch([activeCategory, () => activeTabs.value], () => {
+  updateQueryParams({
+    category: activeCategory.value,
+    tab: activeTabs.value[activeCategory.value]
+  })
+}, { deep: true })
+
 onMounted(() => {
   initDarkMode()
   initHistory()
+  restoreStateFromUrl()
 })
 </script>
 

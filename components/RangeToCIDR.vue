@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { rangeToCIDR, isValidIP } from '~/utils/network'
 
 const startIp = ref('192.168.0.0')
@@ -8,6 +8,7 @@ const cidrs = ref<string[]>([])
 const error = ref('')
 
 const { copied, copyToClipboard } = useCopyToClipboard()
+const { getQueryParam, updateQueryParams } = useUrlState()
 
 const convertRange = () => {
   error.value = ''
@@ -30,6 +31,26 @@ const convertRange = () => {
 const copyAllCIDRs = () => {
   copyToClipboard(cidrs.value.join('\n'))
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlStartIp = getQueryParam('startIp')
+  const urlEndIp = getQueryParam('endIp')
+
+  if (urlStartIp) startIp.value = urlStartIp
+  if (urlEndIp) endIp.value = urlEndIp
+
+  if (urlStartIp && urlEndIp) {
+    convertRange()
+  }
+})
+
+watch([startIp, endIp], ([newStart, newEnd]) => {
+  updateQueryParams({
+    startIp: newStart || null,
+    endIp: newEnd || null
+  })
+})
 </script>
 
 <template>

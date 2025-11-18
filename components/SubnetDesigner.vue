@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import {
   divideSubnetEqually,
   divideSubnetBySize,
@@ -24,6 +24,7 @@ const vlsmResults = ref<VLSMResult[]>([])
 const error = ref('')
 
 const { copied, copyToClipboard } = useCopyToClipboard()
+const { getQueryParam, updateQueryParams } = useUrlState()
 
 const processSubnet = () => {
   error.value = ''
@@ -106,6 +107,34 @@ const exportCSV = () => {
   link.download = filename
   link.click()
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlCidr = getQueryParam('subnetCidr')
+  const urlMode = getQueryParam('subnetMode')
+  const urlDivisionCount = getQueryParam('divisionCount')
+  const urlNewCidr = getQueryParam('newCidr')
+
+  if (urlCidr) cidrInput.value = urlCidr
+  if (urlMode && ['equal', 'size', 'vlsm'].includes(urlMode)) {
+    mode.value = urlMode as 'equal' | 'size' | 'vlsm'
+  }
+  if (urlDivisionCount) divisionCount.value = parseInt(urlDivisionCount)
+  if (urlNewCidr) newCidr.value = parseInt(urlNewCidr)
+
+  if (urlCidr) {
+    processSubnet()
+  }
+})
+
+watch([cidrInput, mode, divisionCount, newCidr], ([newCidr, newMode, newDivCount, newCidrVal]) => {
+  updateQueryParams({
+    subnetCidr: newCidr || null,
+    subnetMode: newMode,
+    divisionCount: String(newDivCount),
+    newCidr: String(newCidrVal)
+  })
+})
 </script>
 
 <template>

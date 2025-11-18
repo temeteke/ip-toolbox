@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import {
   isIpInNetwork,
   getIPType,
@@ -18,6 +18,8 @@ const checkResult = ref<{
   classification: IPClassification | null
 } | null>(null)
 const checkError = ref('')
+
+const { getQueryParam, updateQueryParams } = useUrlState()
 
 const checkIpBelonging = () => {
   checkError.value = ''
@@ -52,6 +54,31 @@ const checkIpBelonging = () => {
     checkError.value = error instanceof Error ? error.message : '判定エラーが発生しました'
   }
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlCheckIp = getQueryParam('checkIp')
+  const urlCheckCidr = getQueryParam('checkCidr')
+
+  if (urlCheckIp) {
+    checkIp.value = urlCheckIp
+  }
+  if (urlCheckCidr) {
+    checkCidr.value = urlCheckCidr
+  }
+
+  if (urlCheckIp) {
+    checkIpBelonging()
+  }
+})
+
+// 入力値の変更をURLに反映
+watch([checkIp, checkCidr], ([newIp, newCidr]) => {
+  updateQueryParams({
+    checkIp: newIp || null,
+    checkCidr: newCidr || null
+  })
+})
 </script>
 
 <template>

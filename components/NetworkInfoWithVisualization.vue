@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { NetworkInfo } from '~/utils/network'
 import {
   calculateNetworkInfo,
@@ -17,6 +17,7 @@ const subnets = ref<SubnetInfo[]>([])
 const viewMode = ref<'both' | 'detail' | 'visual'>('both')
 
 const { addHistory } = useHistory()
+const { getQueryParam, updateQueryParam } = useUrlState()
 
 const totalAddresses = computed(() => {
   if (!networkInfo.value) return 0
@@ -61,6 +62,20 @@ const formatBinary = (binary: string): string => {
     .map((octet) => octet.split('').join(' '))
     .join('  .  ')
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlCidr = getQueryParam('cidr')
+  if (urlCidr) {
+    cidrInput.value = urlCidr
+    calculateNetwork()
+  }
+})
+
+// 入力値の変更をURLに反映
+watch(cidrInput, (newValue) => {
+  updateQueryParam('cidr', newValue || null)
+})
 </script>
 
 <template>

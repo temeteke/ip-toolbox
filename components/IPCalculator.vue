@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { calculateIP, getNthHostInNetwork, type IPCalculation } from '~/utils/network'
 
 const ip = ref('')
@@ -170,6 +170,8 @@ const networkForNth = ref('')
 const nthHost = ref<number | null>(null)
 const nthHostResult = ref('')
 const nthHostError = ref('')
+
+const { getQueryParam, updateQueryParams } = useUrlState()
 
 const handleCalculate = () => {
   if (!ip.value.trim()) {
@@ -214,4 +216,27 @@ const copyToClipboard = (text: string) => {
     console.error('コピーに失敗しました:', err)
   })
 }
+
+// URLパラメータとの同期
+onMounted(() => {
+  const urlIp = getQueryParam('ip')
+  const urlOffset = getQueryParam('offset')
+  const urlSecondIP = getQueryParam('secondIP')
+
+  if (urlIp) ip.value = urlIp
+  if (urlOffset) offset.value = parseInt(urlOffset)
+  if (urlSecondIP) secondIP.value = urlSecondIP
+
+  if (urlIp) {
+    handleCalculate()
+  }
+})
+
+watch([ip, offset, secondIP], ([newIp, newOffset, newSecondIP]) => {
+  updateQueryParams({
+    ip: newIp || null,
+    offset: newOffset !== null ? String(newOffset) : null,
+    secondIP: newSecondIP || null
+  })
+})
 </script>
