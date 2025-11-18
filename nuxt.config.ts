@@ -39,25 +39,58 @@ export default defineNuxtConfig({
       theme_color: '#3b82f6',
       background_color: '#ffffff',
       display: 'standalone',
+      start_url: '/ip-toolbox/',
+      scope: '/ip-toolbox/',
       icons: [
         {
-          src: '/ip-toolbox/icon.svg',
-          sizes: 'any',
-          type: 'image/svg+xml',
-          purpose: 'any maskable'
+          src: '/ip-toolbox/icon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/ip-toolbox/icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/ip-toolbox/icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
         }
       ]
     },
     workbox: {
       navigateFallback: '/ip-toolbox/',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}']
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      cleanupOutdatedCaches: true,
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        }
+      ]
     },
     client: {
-      installPrompt: true
+      installPrompt: true,
+      periodicSyncForUpdates: 20
     },
     devOptions: {
       enabled: true,
-      type: 'module'
+      type: 'module',
+      navigateFallback: '/ip-toolbox/'
     }
   },
 
