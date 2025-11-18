@@ -33,6 +33,7 @@ export default defineNuxtConfig({
   // PWA設定
   pwa: {
     registerType: 'autoUpdate',
+    injectRegister: 'inline',
     registerWebManifestInRouteRules: true,
     manifest: {
       name: 'IP Toolbox',
