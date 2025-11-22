@@ -209,11 +209,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-
-      <!-- フッター情報 -->
-      <div class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-        <p>10個の高度なネットワーク計算ツール | 統合UI v2.0</p>
-      </div>
     </div>
   </div>
 </template>
